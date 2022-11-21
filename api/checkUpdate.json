@@ -1,0 +1,9 @@
+{
+    "code": 200,
+    "msg": "OK",
+    "data": {
+        "downloadUrl": "wsad",
+        "version": "1.0.0",
+        "Description": "哔哩吧啦"
+    }
+}
