@@ -1,0 +1,5 @@
+id: "net.diyigemt.mpu"
+version: "0.1.0"
+name: "Mirai Plugin Updater"
+author: "diyigemt"
+info: "Mirai插件自动化更新"
