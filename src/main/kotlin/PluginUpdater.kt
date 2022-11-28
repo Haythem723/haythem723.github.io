@@ -1,6 +1,5 @@
 package net.diyigemt.mpu
 
-import kotlinx.serialization.Serializable
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescription
 
 /**
@@ -9,11 +8,11 @@ import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescription
  */
 abstract class PluginUpdater(url: String, desc: JvmPluginDescription) {
     init {
+        System.setProperty("proxyHost", "127.0.0.1")
+        System.setProperty("proxyPort", "7890")
         MiraiPluginUpdater.updateManager.addPlugin(url, desc)
     }
 
     companion object{
-        @Serializable
-        lateinit var a: APIData
     }
 }

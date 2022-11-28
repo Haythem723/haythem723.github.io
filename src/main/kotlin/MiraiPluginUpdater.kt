@@ -1,7 +1,10 @@
 package net.diyigemt.mpu
 
 import kotlinx.coroutines.launch
+import net.diyigemt.mpu.command.UpdateCommand
 import net.diyigemt.mpu.utils.DataStoreUtil
+import net.mamoe.mirai.console.command.CommandManager
+import net.mamoe.mirai.console.command.CommandManager.INSTANCE.registeredCommands
 import net.mamoe.mirai.console.extension.PluginComponentStorage
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescription
 import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
@@ -12,8 +15,9 @@ object MiraiPluginUpdater : KotlinPlugin(
     lateinit var updateManager: UpdateManager
     override fun onEnable() {
         info("mpu loaded")
-        DataStoreUtil.test()
+        //DataStoreUtil.test()
         updateManager = UpdateManager()
+        CommandManager.registerCommand(UpdateCommand)
     }
 
     override fun onDisable() {
