@@ -10,27 +10,27 @@ import net.mamoe.mirai.console.util.SemVersion
  */
 @Serializable
 internal data class PropertyData(
-    val name: String,
-    val version: SemVersion,
-    //val historyVersion: List<SemVersion>
+  val name: String,
+  val version: SemVersion,
+  //val historyVersion: List<SemVersion>
 )
 
 @Serializable
 data class APIData(
-    val fileName: String,
-    val downloadUrl: String,
-    val version: SemVersion,
-    val description: String
+  val fileName: String,
+  val downloadUrl: String,
+  val version: SemVersion,
+  val description: String
 )
 
 @Serializable
 data class ResponseData(
-    val code: Int,
-    val msg: String,
-    val data: APIData
+  val code: Int,
+  val msg: String,
+  val data: APIData
 )
 
 internal data class UpdaterData(
-    val downloadUrl: String,
-    val description: JvmPluginDescription
+  val downloadUrl: String,
+  val description: JvmPluginDescription
 )

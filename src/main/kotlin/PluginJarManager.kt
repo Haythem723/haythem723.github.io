@@ -24,59 +24,60 @@ import java.io.File
  */
 @Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER")
 internal class PluginJarManager {
-    init {
-        //data self check
-        DataStoreUtil.foreach {entry ->
-            getPluginById(entry.key)?: kotlin.runCatching {
-                deleteNoneExistPlugin(entry.key)
-                DataStoreUtil.remove(entry.key)
-            }.onFailure {
-                it.printStackTrace()
-            }
-        }
+  init {
+    //data self check
+    DataStoreUtil.foreach { entry ->
+      getPluginById(entry.key) ?: kotlin.runCatching {
+        deleteNoneExistPlugin(entry.key)
+        DataStoreUtil.remove(entry.key)
+      }.onFailure {
+        it.printStackTrace()
+      }
+    }
+  }
+
+  companion object {
+    private fun deleteNoneExistPlugin(id: String) {
+      kotlin.runCatching {
+        PluginFileUtil.listFiles()?.filter { it.name == id && it.isDirectory }?.forEach { it.deleteRecursively() }
+      }.onSuccess {
+        MiraiPluginUpdater.warning("插件: $id 不存在，已删除相关备份和数据")
+      }.onFailure {
+        it.printStackTrace()
+      }
     }
 
-    companion object{
-        private fun deleteNoneExistPlugin(id: String){
-            kotlin.runCatching {
-                PluginFileUtil.listFiles()?.filter { it.name == id && it.isDirectory }?.forEach { it.deleteRecursively() }
-            }.onSuccess {
-                MiraiPluginUpdater.warning("插件: $id 不存在，已删除相关备份和数据")
-            }.onFailure {
-                it.printStackTrace()
-            }
+    @OptIn(ConsoleFrontEndImplementation::class)
+    fun getPluginById(id: String): AbstractJvmPlugin? = (MiraiConsole.pluginManager as PluginManagerImpl)
+      .resolvedPlugins
+      .filterIsInstance<AbstractJvmPlugin>().find { it.id == id || it.name == id }
+
+    fun getPluginClassLoader(plugin: AbstractJvmPlugin): JvmPluginClassLoaderN =
+      plugin.javaClass.classLoader as JvmPluginClassLoaderN
+
+    @OptIn(ConsoleFrontEndImplementation::class)
+    @Suppress("UNCHECKED_CAST")
+    suspend fun disablePlugin(id: String): Boolean {
+      val loader = MiraiConsoleImplementation.getInstance().jvmPluginLoader as BuiltInJvmPluginLoaderImpl
+      val plugin = getPluginById(id) ?: return false
+      val cache = loader::class.java.getDeclaredField("pluginFileToInstanceMap").apply {
+        isAccessible = true
+      }.get(loader) as MutableMap<File, JvmPlugin>
+      PluginManager.disablePlugin(plugin)
+      kotlin.runCatching {
+        plugin.cancel()
+        val permissions = PermissionService.INSTANCE.javaClass.getDeclaredField("permissions").apply {
+          isAccessible = true
+        }.get(PermissionService.INSTANCE) as MutableMap<*, *>
+        withContext(Dispatchers.IO) {
+          getPluginClassLoader(plugin).close()
         }
+      }.onFailure {
+        it.printStackTrace()
+        return false
+      }
 
-        @OptIn(ConsoleFrontEndImplementation::class)
-        fun getPluginById(id: String): AbstractJvmPlugin? = (MiraiConsole.pluginManager as PluginManagerImpl)
-            .resolvedPlugins
-            .filterIsInstance<AbstractJvmPlugin>().find { it.id == id || it.name == id }
-
-        fun getPluginClassLoader(plugin: AbstractJvmPlugin): JvmPluginClassLoaderN = plugin.javaClass.classLoader as JvmPluginClassLoaderN
-
-        @OptIn(ConsoleFrontEndImplementation::class)
-        @Suppress("UNCHECKED_CAST")
-        suspend fun disablePlugin(id: String): Boolean{
-            val loader = MiraiConsoleImplementation.getInstance().jvmPluginLoader as BuiltInJvmPluginLoaderImpl
-            val plugin = getPluginById(id)?: return false
-            val cache = loader::class.java.getDeclaredField("pluginFileToInstanceMap").apply {
-                isAccessible = true
-            }.get(loader) as MutableMap<File, JvmPlugin>
-            PluginManager.disablePlugin(plugin)
-            kotlin.runCatching {
-                plugin.cancel()
-                val permissions = PermissionService.INSTANCE.javaClass.getDeclaredField("permissions").apply {
-                    isAccessible = true
-                }.get(PermissionService.INSTANCE) as MutableMap<*, *>
-                withContext(Dispatchers.IO){
-                    getPluginClassLoader(plugin).close()
-                }
-            }.onFailure {
-                it.printStackTrace()
-                return false
-            }
-
-            return true
-        }
+      return true
     }
+  }
 }

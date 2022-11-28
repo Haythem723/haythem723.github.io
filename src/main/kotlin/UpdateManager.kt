@@ -27,7 +27,7 @@ import kotlin.collections.set
 class UpdateManager {
   private val pluginMap: MutableMap<String, UpdaterData> = mutableMapOf()
 
-  val updateTask: MutableMap<JvmPluginDescription, APIData> = mutableMapOf()
+  private val updateTask: MutableMap<JvmPluginDescription, APIData> = mutableMapOf()
 
   init {
     PluginJarManager()
@@ -48,13 +48,12 @@ class UpdateManager {
   fun generateUpdateList(): String {
     var res = "当前所有插件为最新"
     if(updateTask.isNotEmpty()){
-      res = "\n"
+      res = "\n\n"
       updateTask.forEach{
         res += "${it.key.name} v${it.key.version} -> v${it.value.version}\n"
       }
-      res += """输入 “mpu update” 更新以上所有插件"""
+      res += "\n输入 “mpu update” 更新以上所有插件"
     }
-    //MiraiPluginUpdater.info(res)
 
     return res
   }
@@ -103,7 +102,7 @@ class UpdateManager {
     }
   }
 
-  companion object{
+  private companion object{
     private val client = HttpClient(CIO){
       install(ContentNegotiation){
         json(json = Json{ignoreUnknownKeys = true})
