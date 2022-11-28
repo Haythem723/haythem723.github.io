@@ -2,7 +2,7 @@
     "code": 200,
     "msg": "OK",
     "data": {
-        "fileName": "MiraiPluginUpdater",
+        "fileName": "net.diyigemt.arona-arona",
         "downloadUrl": "https://github.com/Haythem723/haythem723.github.io/releases/download/0.1.0/MiraiPluginUpdater-0.1.0.mirai2.jar",
         "version": "0.1.0",
         "description": "哔哩吧啦"
